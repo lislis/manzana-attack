@@ -370,7 +370,7 @@ fn main() {
                                     c.transform.trans(320.0, 40.0),
                                     g);
 
-                            for (i, v) in (0..game.player.shots.total).enumerate() {
+                            for i in 0..game.player.shots.total {
                                 if i as i32 >= game.player.shots.left {
                                     image(&apple_gone, c.transform.scale(0.5, 0.5).trans((50.0 + (i * 50) as f64), 20.0), g);
                                 } else {
@@ -393,8 +393,8 @@ fn main() {
                                 }
                             }
 
-                            for (ci, cv) in (0..game.player.rows).enumerate() {
-                                for (ri, rv) in (0..game.player.columns).enumerate() {
+                            for cv in 0..game.player.rows {
+                                for rv in 0..game.player.columns {
                                     if rv == game.player.x
                                         && cv == game.player.y {
                                             let square = rectangle::square(0.0, 0.0, 50.0);
