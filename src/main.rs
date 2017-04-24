@@ -24,6 +24,9 @@ impl Game {
             global_time: 0.0
         }
     }
+    pub fn set_scene(&mut self, scene: usize) {
+        self.scene = scene;
+    }
 }
 
 fn main() {
@@ -49,15 +52,22 @@ fn main() {
             Input::Release(Button::Keyboard(key)) => {
                 match game.scene {
                     1 => {
-                        // set game scene
+                        if key == Key::M {
+                            game.set_scene(2);
+                        }
+                    }
+                    2 => {
+                        // game play
                     }
                     _ => {}
                 }
             }
 
             Input::Update(args) => {
-                // game.update();
-                // game.check_collision();
+                if game.scene == 2 {
+                    // game.update();
+                    // game.check_collision();
+                }
             }
 
             Input::Render(_) => {
@@ -81,6 +91,20 @@ fn main() {
                                     &c.draw_state,
                                     c.transform.trans(200.0, 300.0),
                                     g);
+                        });
+                    }
+                    2 => {
+                        window.draw_2d(&e, |c, g| {
+                            clear([1.0; 4], g);
+
+                            text::Text::new_color([0.0, 0.0, 0.0, 1.0], 50)
+                                .draw(
+                                    &"This is a game",
+                                    &mut glyphs,
+                                    &c.draw_state,
+                                    c.transform.trans(100.0, 100.0),
+                                    g);
+
                         });
                     }
                     _ => {}
