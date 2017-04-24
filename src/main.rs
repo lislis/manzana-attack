@@ -1,9 +1,11 @@
 extern crate piston_window;
 extern crate find_folder;
 extern crate rand;
+extern crate ears;
 
 use piston_window::*;
 use rand::Rng;
+use ears::{Sound, AudioController};
 
 struct Folk {
     pub x: f64,
@@ -137,6 +139,8 @@ impl Player {
         self.factor + (pos * self.factor)
     }
     pub fn throw(&mut self) {
+        //let mut throw_sound = Sound::new("../../assets/throw_sound.wav").unwrap();
+        //throw_sound.play();
         let x = self.x as f64;
         let y = self.y as f64;
         let x = self.calc_coord(x);
@@ -206,10 +210,9 @@ impl Game {
 
     pub fn update(&mut self, dt: f64) {
         if self.player.shots.left == 0 {
-            // let max_apples = self.player.shots.total - 1;
-            //   if self.player.apples[max_apples].active != false {
-            self.set_scene(3);
-            // }
+            if !self.player.apples.get(9).unwrap().active {
+                self.set_scene(3);
+            }
         }
         self.player.update();
 
@@ -238,6 +241,8 @@ impl Game {
                             a.x + a.w > f.x &&
                             a.y < f.y + f.h &&
                             a.y + a.h > f.y {
+                                //let mut impact_sound = Sound::new("../../assets/impact_sound.wav").unwrap();
+                                //impact_sound.play();
                                 f.deactivate();
                                 a.deactivate();
                                 points = 20;
