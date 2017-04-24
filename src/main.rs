@@ -5,13 +5,34 @@ extern crate rand;
 use piston_window::*;
 use rand::Rng;
 
+
+struct Shots {
+    pub total: i32,
+    pub gone: i32,
+    pub left: i32
+}
+
+impl Shots {
+    pub fn new() -> Shots {
+        Shots {
+            total: 10,
+            gone: 0,
+            left: 10
+        }
+    }
+    pub fn fire(&mut self) {
+        self.gone += 1;
+        self.left -= 1;
+    }
+}
+
 struct Player {
     pub rows: i32,
     pub columns: i32,
     pub x: i32,
     pub y: i32,
-    factor: f64
-    //pub shots: Shots,
+    factor: f64,
+    pub shots: Shots
     //pub apples: Vec<Apples>
 }
 
@@ -22,8 +43,8 @@ impl Player {
             columns: 3,
             x: 0,
             y: 0,
-            factor: 110.0
-            //shots: Shots::new(),
+            factor: 110.0,
+            shots: Shots::new()
             // apples: vec![]
         }
     }
@@ -38,6 +59,7 @@ impl Player {
         let x = self.calc_coord(x);
         let y = self.calc_coord(y);
         println!("{}, {}", x, y);
+        self.shots.fire();
     }
     pub fn update(&mut self, dt: f64) {
         //
@@ -82,6 +104,12 @@ impl Game {
     pub fn set_scene(&mut self, scene: usize) {
         self.scene = scene;
     }
+
+    pub fn update(&mut self) {
+        if self.player.shots.left == 0 {
+            self.set_scene(3);
+        }
+    }
 }
 
 fn main() {
@@ -106,6 +134,19 @@ fn main() {
         &TextureSettings::new()
     ).unwrap();
 
+    let apple = Texture::from_path(
+        &mut window.factory,
+        &assets.join("apple.png"),
+        Flip::None,
+        &TextureSettings::new()
+    ).unwrap();
+
+    let apple_gone = Texture::from_path(
+        &mut window.factory,
+        &(assets.join("apple-gone.png")),
+        Flip::None,
+        &TextureSettings::new()
+    ).unwrap();
 
     let black = [0.0, 0.0, 0.0, 1.0];
     let white = [1.0, 1.0, 1.0, 1.0];
@@ -148,7 +189,7 @@ fn main() {
 
             Input::Update(args) => {
                 if game.scene == 2 {
-                    // game.update();
+                    game.update();
                     // game.check_collision();
                 }
             }
@@ -190,6 +231,14 @@ fn main() {
                                     c.transform.trans(100.0, 100.0),
                                     g);
 
+                            for (i, v) in (0..game.player.shots.total).enumerate() {
+                                if i as i32 >= game.player.shots.left {
+                                    image(&apple_gone, c.transform.scale(0.5, 0.5).trans((0.0 + (i * 50) as f64), 0.0), g);
+                                } else {
+                                    image(&apple, c.transform.scale(0.5, 0.5).trans((0.0 + (i * 50) as f64), 0.0), g);
+                                }
+                            }
+
                             for (ci, cv) in (0..game.player.rows).enumerate() {
                                 for (ri, rv) in (0..game.player.columns).enumerate() {
                                     if rv == game.player.x
@@ -203,6 +252,27 @@ fn main() {
                                 }
                             }
 
+                        });
+                    }
+                    3 => {
+                        window.draw_2d(&e, |c, g| {
+                            clear(white, g);
+
+                            text::Text::new_color(black, 50)
+                                .draw(
+                                    &"You're out of apples",
+                                    &mut glyphs,
+                                    &c.draw_state,
+                                    c.transform.trans(100.0, 100.0),
+                                    g);
+
+                            text::Text::new_color(black, 20)
+                                .draw(
+                                    &"Press <esc> to close",
+                                    &mut glyphs,
+                                    &c.draw_state,
+                                    c.transform.trans(200.0, 300.0),
+                                    g);
                         });
                     }
                     _ => {}
