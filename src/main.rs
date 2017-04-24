@@ -33,7 +33,7 @@ fn main() {
     let opengl = OpenGL::V3_2;
 
     let mut window: PistonWindow = WindowSettings::new(
-        "Manzana Attack", [500, 600])
+        "Manzana Attack", [500, 700])
         .opengl(opengl)
         .exit_on_esc(true)
         .build().unwrap();
@@ -43,6 +43,13 @@ fn main() {
 
     let ref font = assets.join("Amatic-Bold.ttf");
     let mut glyphs = Glyphs::new(font, window.factory.clone()).unwrap();
+
+    let house = Texture::from_path(
+        &mut window.factory,
+        assets.join("house.jpg"),
+        Flip::None,
+        &TextureSettings::new()
+    ).unwrap();
 
     let mut game = Game::new(1);
 
@@ -96,6 +103,8 @@ fn main() {
                     2 => {
                         window.draw_2d(&e, |c, g| {
                             clear([1.0; 4], g);
+
+                            image(&house, c.transform.scale(0.5, 0.5), g);
 
                             text::Text::new_color([0.0, 0.0, 0.0, 1.0], 50)
                                 .draw(
