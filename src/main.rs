@@ -5,10 +5,66 @@ extern crate rand;
 use piston_window::*;
 use rand::Rng;
 
+struct Folk {
+    pub x: f64,
+    pub y: f64,
+    pub w: f64,
+    pub h: f64,
+    pub active: bool,
+    ltr: bool,
+    speed: f64,
+    blue: [f32; 4],
+    color: [f32; 4] // red
+}
+
+impl Folk {
+    pub fn new(param_ltr:bool, param_speed:f64) -> Folk {
+        Folk {
+            x: Folk::decide_x(param_ltr),
+            y: 630.0,
+            w: 40.0,
+            h: 40.0,
+            active: true,
+            ltr: param_ltr,
+            speed: param_speed,
+            blue: [0.0, 0.0, 1.0, 1.0],
+            color: [1.0, 0.0, 0.0, 1.0]
+        }
+    }
+    fn decide_x(ltr:bool) -> f64 {
+        if ltr {
+            0.0
+        } else {
+            500.0
+        }
+    }
+    pub fn update(&mut self) {
+        if self.active {
+            if self.ltr {
+                self.x += 1.0 * self.speed;
+                if self.x > 1000.0 {
+                    self.active = false;
+                }
+            } else {
+                self.x -= 1.0 * self.speed;
+                if self.x < 0.0 - self.w {
+                    self.active = false;
+                }
+            }
+        }
+    }
+    pub fn deactivate(&mut self) {
+        self.active = false;
+        self.color = self.blue;
+    }
+}
+
 struct Apple {
     pub active: bool,
     pub x: f64,
-    pub y: f64
+    pub y: f64,
+    pub w: f64,
+    pub h: f64
 }
 
 impl Apple {
@@ -16,17 +72,22 @@ impl Apple {
         Apple {
             active: true,
             x: param_x,
-            y: param_y
+            y: param_y,
+            w: 40.0,
+            h: 40.0
         }
     }
     pub fn update(&mut self) {
         if self.active {
             self.y += 1.0;
 
-            if self.y > 650.0 { // window height
+            if self.y > 650.0 { // window height_ish
                 self.active = false;
             }
         }
+    }
+    pub fn deactivate(&mut self) {
+        self.active = false;
     }
 }
 
@@ -107,36 +168,86 @@ impl Player {
 
 struct Game {
     pub scene: usize,
-    //pub folks: Vec<Folk>,
+    pub folks: Vec<Folk>,
     pub player: Player,
     last_folk: f64,
     folk_interval: f64,
-    global_time: f64
+    global_time: f64,
+    pub score: i32
 }
 
 impl Game {
     pub fn new(param_scene: usize) -> Game {
         Game {
             scene: param_scene,
-            //folks: vec![],
+            folks: vec![],
             player: Player::new(),
-            last_folk: 0.0,
-            folk_interval: 3.0,
-            global_time: 0.0
+            last_folk: 1.0,
+            folk_interval: 2.0,
+            global_time: 0.0,
+            score: 0
         }
     }
     pub fn set_scene(&mut self, scene: usize) {
         self.scene = scene;
     }
 
-    pub fn update(&mut self) {
+    fn spawn_folk(&mut self) {
+        let mut rng = rand::thread_rng();
+        let speed = rng.gen::<f64>() + 1.0;
+        let ltr = rng.gen();
+
+        self.folks.push(Folk::new(ltr, speed));
+    }
+
+    fn count_up_score(&mut self, points: i32) {
+        self.score += points;
+    }
+
+    pub fn update(&mut self, dt: f64) {
         if self.player.shots.left == 0 {
-           // let max_apples = self.player.shots.total - 1;
-         //   if self.player.apples[max_apples].active != false {
-                self.set_scene(3);
-           // }
+            // let max_apples = self.player.shots.total - 1;
+            //   if self.player.apples[max_apples].active != false {
+            self.set_scene(3);
+            // }
         }
         self.player.update();
+
+        self.global_time += dt;
+        self.last_folk += dt;
+
+        if self.last_folk > self.folk_interval {
+            self.last_folk = 0.0;
+
+            self.spawn_folk();
+        }
+
+        for f in self.folks.iter_mut() {
+            f.update();
+        }
+    }
+
+    pub fn check_collision(&mut self) {
+        let mut points: i32 = 0;
+        for f in self.folks.iter_mut() {
+            if f.active {
+                for a in self.player.apples.iter_mut() {
+                    if a.active {
+
+                        if a.x < f.x + f.w &&
+                            a.x + a.w > f.x &&
+                            a.y < f.y + f.h &&
+                            a.y + a.h > f.y {
+                                f.deactivate();
+                                a.deactivate();
+                                points = 20;
+                            }
+
+                    }
+                }
+            }
+        }
+        self.count_up_score(points);
     }
 }
 
@@ -217,8 +328,8 @@ fn main() {
 
             Input::Update(args) => {
                 if game.scene == 2 {
-                    game.update();
-                    // game.check_collision();
+                    game.update(args.dt);
+                    game.check_collision();
                 }
             }
 
@@ -251,19 +362,34 @@ fn main() {
 
                             image(&house, c.transform.scale(0.5, 0.5), g);
 
-                            text::Text::new_color(black, 50)
+                            text::Text::new_color(black, 30)
                                 .draw(
-                                    &"This is a game",
+                                    &format!("Score: {}", game.score),
                                     &mut glyphs,
                                     &c.draw_state,
-                                    c.transform.trans(100.0, 100.0),
+                                    c.transform.trans(320.0, 40.0),
                                     g);
 
                             for (i, v) in (0..game.player.shots.total).enumerate() {
                                 if i as i32 >= game.player.shots.left {
-                                    image(&apple_gone, c.transform.scale(0.5, 0.5).trans((0.0 + (i * 50) as f64), 0.0), g);
+                                    image(&apple_gone, c.transform.scale(0.5, 0.5).trans((50.0 + (i * 50) as f64), 20.0), g);
                                 } else {
-                                    image(&apple, c.transform.scale(0.5, 0.5).trans((0.0 + (i * 50) as f64), 0.0), g);
+                                    image(&apple, c.transform.scale(0.5, 0.5).trans((50.0 + (i * 50) as f64), 20.0), g);
+                                }
+                            }
+
+                            for f in game.folks.iter() {
+                                if f.active {
+                                    let folk_square = rectangle::square(0.0, 0.0, f.w);
+                                    rectangle(f.color, folk_square, c.transform.trans(
+                                        f.x, f.y), g);
+                                }
+                            }
+
+                            for a in game.player.apples.iter() {
+                                if a.active {
+                                    image(&apple, c.transform.trans(
+                                        a.x, a.y), g);
                                 }
                             }
 
@@ -271,20 +397,13 @@ fn main() {
                                 for (ri, rv) in (0..game.player.columns).enumerate() {
                                     if rv == game.player.x
                                         && cv == game.player.y {
-                                        let square = rectangle::square(0.0, 0.0, 50.0);
-                                        rectangle(black, square, c.transform.trans(
-                                            game.player.calc_coord(rv as f64),
-                                            game.player.calc_coord(cv as f64)), g);
-                                    }
-
+                                            let square = rectangle::square(0.0, 0.0, 50.0);
+                                            rectangle(black, square, c.transform.trans(
+                                                game.player.calc_coord(rv as f64),
+                                                game.player.calc_coord(cv as f64)), g);
+                                        }
                                 }
                             }
-
-                            for a in game.player.apples.iter() {
-                                image(&apple, c.transform.trans(
-                                    a.x, a.y), g);
-                            }
-
                         });
                     }
                     3 => {
