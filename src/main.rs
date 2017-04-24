@@ -266,6 +266,13 @@ fn main() {
     let ref font = assets.join("Amatic-Bold.ttf");
     let mut glyphs = Glyphs::new(font, window.factory.clone()).unwrap();
 
+    let house_start = Texture::from_path(
+        &mut window.factory,
+        assets.join("house-start.jpg"),
+        Flip::None,
+        &TextureSettings::new()
+    ).unwrap();
+
     let house = Texture::from_path(
         &mut window.factory,
         assets.join("house.jpg"),
@@ -338,6 +345,7 @@ fn main() {
                     1 => {
                         window.draw_2d(&e, |c, g| {
                             clear(white, g);
+                            image(&house_start, c.transform.scale(0.5, 0.5), g);
 
                             text::Text::new_color(black, 50)
                                 .draw(
@@ -347,12 +355,27 @@ fn main() {
                                     c.transform.trans(100.0, 100.0),
                                     g);
 
-                            text::Text::new_color(black, 20)
+                            text::Text::new_color(black, 30)
+                                .draw(
+                                    &"<w><a><s><d> to move",
+                                    &mut glyphs,
+                                    &c.draw_state,
+                                    c.transform.trans(120.0, 300.0),
+                                    g);
+                            text::Text::new_color(black, 30)
+                                .draw(
+                                    &"<m> to throw",
+                                    &mut glyphs,
+                                    &c.draw_state,
+                                    c.transform.trans(120.0, 350.0),
+                                    g);
+
+                            text::Text::new_color(black, 30)
                                 .draw(
                                     &"Press <m> to start",
                                     &mut glyphs,
                                     &c.draw_state,
-                                    c.transform.trans(200.0, 300.0),
+                                    c.transform.trans(150.0, 500.0),
                                     g);
                         });
                     }
@@ -409,8 +432,9 @@ fn main() {
                     3 => {
                         window.draw_2d(&e, |c, g| {
                             clear(white, g);
+                            image(&house_start, c.transform.scale(0.5, 0.5), g);
 
-                            text::Text::new_color(black, 50)
+                            text::Text::new_color(black, 40)
                                 .draw(
                                     &"You're out of apples",
                                     &mut glyphs,
@@ -418,12 +442,20 @@ fn main() {
                                     c.transform.trans(100.0, 100.0),
                                     g);
 
-                            text::Text::new_color(black, 20)
+                            text::Text::new_color(black, 40)
+                                .draw(
+                                    &format!("Your score is {}", game.score),
+                                    &mut glyphs,
+                                    &c.draw_state,
+                                    c.transform.trans(100.0, 200.0),
+                                    g);
+
+                            text::Text::new_color(black, 30)
                                 .draw(
                                     &"Press <esc> to close",
                                     &mut glyphs,
                                     &c.draw_state,
-                                    c.transform.trans(200.0, 300.0),
+                                    c.transform.trans(150.0, 500.0),
                                     g);
                         });
                     }
