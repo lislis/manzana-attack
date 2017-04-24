@@ -5,6 +5,30 @@ extern crate rand;
 use piston_window::*;
 use rand::Rng;
 
+struct Apple {
+    pub active: bool,
+    pub x: f64,
+    pub y: f64
+}
+
+impl Apple {
+    pub fn new(param_x: f64, param_y: f64) -> Apple {
+        Apple {
+            active: true,
+            x: param_x,
+            y: param_y
+        }
+    }
+    pub fn update(&mut self) {
+        if self.active {
+            self.y += 1.0;
+
+            if self.y > 650.0 { // window height
+                self.active = false;
+            }
+        }
+    }
+}
 
 struct Shots {
     pub total: i32,
@@ -32,8 +56,8 @@ struct Player {
     pub x: i32,
     pub y: i32,
     factor: f64,
-    pub shots: Shots
-    //pub apples: Vec<Apples>
+    pub shots: Shots,
+    pub apples: Vec<Apple>
 }
 
 impl Player {
@@ -44,25 +68,25 @@ impl Player {
             x: 0,
             y: 0,
             factor: 110.0,
-            shots: Shots::new()
-            // apples: vec![]
+            shots: Shots::new(),
+            apples: vec![]
         }
     }
-
     fn calc_coord(&mut self, pos: f64) -> f64 {
         self.factor + (pos * self.factor)
     }
-
     pub fn throw(&mut self) {
         let x = self.x as f64;
         let y = self.y as f64;
         let x = self.calc_coord(x);
         let y = self.calc_coord(y);
-        println!("{}, {}", x, y);
         self.shots.fire();
+        self.apples.push(Apple::new(x, y));
     }
-    pub fn update(&mut self, dt: f64) {
-        //
+    pub fn update(&mut self) {
+        for a in self.apples.iter_mut() {
+            a.update();
+        }
     }
     pub fn moving(&mut self, x: i32, y: i32) {
         self.x += x;
@@ -107,8 +131,12 @@ impl Game {
 
     pub fn update(&mut self) {
         if self.player.shots.left == 0 {
-            self.set_scene(3);
+           // let max_apples = self.player.shots.total - 1;
+         //   if self.player.apples[max_apples].active != false {
+                self.set_scene(3);
+           // }
         }
+        self.player.update();
     }
 }
 
@@ -250,6 +278,11 @@ fn main() {
                                     }
 
                                 }
+                            }
+
+                            for a in game.player.apples.iter() {
+                                image(&apple, c.transform.trans(
+                                    a.x, a.y), g);
                             }
 
                         });
