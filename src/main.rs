@@ -106,8 +106,10 @@ impl Shots {
         }
     }
     pub fn fire(&mut self) {
-        self.gone += 1;
-        self.left -= 1;
+        if self.left > 0 {
+            self.gone += 1;
+            self.left -= 1;
+        }
     }
 }
 
