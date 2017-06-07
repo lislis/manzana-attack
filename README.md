@@ -2,6 +2,8 @@
 
 A game about throwing apples at random people. Based on a true story.
 
+![the game as gif](assets/screen.gif)
+
 ## Why
 
 This is a project to learn the Rust progamming lanuguage and the [Piston game engine](http://www.piston.rs/).
