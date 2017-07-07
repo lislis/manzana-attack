@@ -143,8 +143,11 @@ impl Player {
         let y = self.y as f64;
         let x = self.calc_coord(x);
         let y = self.calc_coord(y);
-        self.shots.fire();
-        self.apples.push(Apple::new(x, y));
+        println!("{}", self.shots.left);
+        if self.shots.left > 0 {
+            self.shots.fire();
+            self.apples.push(Apple::new(x, y));
+        }
     }
     pub fn update(&mut self) {
         for a in self.apples.iter_mut() {
