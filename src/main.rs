@@ -96,7 +96,7 @@ impl Apple {
 struct Shots {
     pub total: i32,
     pub gone: i32,
-    pub left: i32,
+    pub left: i32
 }
 
 impl Shots {
@@ -104,13 +104,13 @@ impl Shots {
         Shots {
             total: 10,
             gone: 0,
-            left: 10,
+            left: 10
         }
     }
     pub fn fire(&mut self) {
         if self.left > 0 {
             self.gone += 1;
-            self.left -= 1
+            self.left -= 1;
         }
     }
 }
@@ -187,7 +187,6 @@ struct Game {
 
 impl Game {
     pub fn new(param_scene: usize) -> Game {
-        
         Game {
             scene: param_scene,
             folks: vec![],
@@ -250,8 +249,7 @@ impl Game {
                                 f.deactivate();
                                 a.deactivate();
                                 points = 20;
-                        }
-
+                            }
                     }
                 }
             }
