@@ -1,9 +1,11 @@
 extern crate piston_window;
 extern crate find_folder;
 extern crate rand;
+extern crate ears;
 
 use piston_window::*;
 use rand::Rng;
+use ears::*;
 
 struct Folk {
     pub x: f64,
@@ -138,16 +140,18 @@ impl Player {
     fn calc_coord(&mut self, pos: f64) -> f64 {
         self.factor + (pos * self.factor)
     }
-    pub fn throw(&mut self) {
+    pub fn throw(&mut self) -> bool {
         let x = self.x as f64;
         let y = self.y as f64;
         let x = self.calc_coord(x);
         let y = self.calc_coord(y);
         println!("{}", self.shots.left);
         if self.shots.left > 0 {
-            self.shots.fire();
             self.apples.push(Apple::new(x, y));
+            self.shots.fire();
+            return true;
         }
+        false
     }
     pub fn update(&mut self) {
         for a in self.apples.iter_mut() {
@@ -231,7 +235,7 @@ impl Game {
         }
     }
 
-    pub fn check_collision(&mut self) {
+    pub fn check_collision(&mut self) -> bool {
         let mut points: i32 = 0;
         for f in self.folks.iter_mut() {
             if f.active {
@@ -246,12 +250,14 @@ impl Game {
                                 a.deactivate();
                                 points = 20;
                             }
-
                     }
                 }
             }
         }
         self.count_up_score(points);
+        
+        if points > 0 {return true;} 
+        false
     }
 }
 
@@ -298,10 +304,14 @@ fn main() {
         &TextureSettings::new()
     ).unwrap();
 
+    let mut throw_sound = Sound::new("assets/throw_sound.wav").unwrap();
+    let mut impact_sound = Sound::new("assets/impact_sound.wav").unwrap();
+
     let black = [0.0, 0.0, 0.0, 1.0];
     let white = [1.0, 1.0, 1.0, 1.0];
 
     let mut game = Game::new(1);
+    throw_sound.play();
 
     while let Some(e) = window.next() {
 
@@ -328,7 +338,9 @@ fn main() {
                                 game.player.moving(1, 0);
                             }
                             Key::M => {
-                                game.player.throw();
+                                if game.player.throw() {
+                                    throw_sound.play();
+                                }
                             }
                             _ => {}
                         }
@@ -340,7 +352,9 @@ fn main() {
             Input::Update(args) => {
                 if game.scene == 2 {
                     game.update(args.dt);
-                    game.check_collision();
+                    if game.check_collision() {
+                        impact_sound.play();
+                    }
                 }
             }
 
@@ -399,9 +413,9 @@ fn main() {
 
                             for i in 0..game.player.shots.total {
                                 if i as i32 >= game.player.shots.left {
-                                    image(&apple_gone, c.transform.scale(0.5, 0.5).trans((50.0 + (i * 50) as f64), 20.0), g);
+                                    image(&apple_gone, c.transform.scale(0.5, 0.5).trans(50.0 + (i * 50) as f64, 20.0), g);
                                 } else {
-                                    image(&apple, c.transform.scale(0.5, 0.5).trans((50.0 + (i * 50) as f64), 20.0), g);
+                                    image(&apple, c.transform.scale(0.5, 0.5).trans(50.0 + (i * 50) as f64, 20.0), g);
                                 }
                             }
 

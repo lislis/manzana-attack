@@ -11,4 +11,4 @@ path = "src/main.rs"
 piston_window = "0.64.0"
 find_folder = "0.3.0"
 rand = "0.3.14"
-
+ears = "0.5.1"
