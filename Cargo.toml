@@ -1,6 +1,6 @@
 [package]
 name = "manzana-attack"
-version = "1.1.0"
+version = "1.2.0"
 authors = ["lislis <mail@lislis.de>"]
 
 [[bin]]
@@ -8,7 +8,7 @@ name = "manzana-attack"
 path = "src/main.rs"
 
 [dependencies]
-piston_window = "0.64.0"
+piston_window = "0.87.0"
 find_folder = "0.3.0"
-rand = "0.3.14"
+rand = "0.6.4"
 
