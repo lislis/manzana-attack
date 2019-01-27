@@ -479,7 +479,7 @@ dependencies = [
 
 [[package]]
 name = "manzana-attack"
-version = "1.1.0"
+version = "1.2.0"
 dependencies = [
  "find_folder 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "piston_window 0.87.0 (registry+https://github.com/rust-lang/crates.io-index)",

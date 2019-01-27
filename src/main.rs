@@ -65,6 +65,8 @@ struct Apple {
     pub y: f64,
     pub w: f64,
     pub h: f64,
+    pub speed: f64,
+    pub g: f64,
 }
 
 impl Apple {
@@ -75,12 +77,14 @@ impl Apple {
             y: param_y,
             w: 40.0,
             h: 40.0,
+            speed: -2.0,
+            g: 9.8, // pixels/s^2
         }
     }
-    pub fn update(&mut self) {
+    pub fn update(&mut self, dt: f64) {
         if self.active {
-            self.y += 1.0;
-
+            self.speed += self.g * dt;
+            self.y += self.speed;
             if self.y > 650.0 {
                 // window height_ish
                 self.active = false;
@@ -150,9 +154,9 @@ impl Player {
             self.apples.push(Apple::new(x, y));
         }
     }
-    pub fn update(&mut self) {
+    pub fn update(&mut self, dt: f64) {
         for a in self.apples.iter_mut() {
-            a.update();
+            a.update(dt);
         }
     }
     pub fn moving(&mut self, x: i32, y: i32) {
@@ -215,7 +219,7 @@ impl Game {
                 self.set_scene(3);
             }
         }
-        self.player.update();
+        self.player.update(dt);
 
         self.global_time += dt;
         self.last_folk += dt;
@@ -432,12 +436,6 @@ fn main() {
                             }
                         }
 
-                        for a in game.player.apples.iter() {
-                            if a.active {
-                                image(&apple, c.transform.trans(a.x, a.y), g);
-                            }
-                        }
-
                         for cv in 0..game.player.rows {
                             for rv in 0..game.player.columns {
                                 if rv == game.player.x && cv == game.player.y {
@@ -452,6 +450,12 @@ fn main() {
                                         g,
                                     );
                                 }
+                            }
+                        }
+
+                        for a in game.player.apples.iter() {
+                            if a.active {
+                                image(&apple, c.transform.trans(a.x, a.y), g);
                             }
                         }
                     });
