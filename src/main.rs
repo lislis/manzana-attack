@@ -1,5 +1,5 @@
-extern crate piston_window;
 extern crate find_folder;
+extern crate piston_window;
 extern crate rand;
 
 use piston_window::*;
@@ -14,11 +14,11 @@ struct Folk {
     ltr: bool,
     speed: f64,
     blue: [f32; 4],
-    color: [f32; 4] // red
+    color: [f32; 4], // red
 }
 
 impl Folk {
-    pub fn new(param_ltr:bool, param_speed:f64) -> Folk {
+    pub fn new(param_ltr: bool, param_speed: f64) -> Folk {
         Folk {
             x: Folk::decide_x(param_ltr),
             y: 630.0,
@@ -28,10 +28,10 @@ impl Folk {
             ltr: param_ltr,
             speed: param_speed,
             blue: [0.0, 0.0, 1.0, 1.0],
-            color: [1.0, 0.0, 0.0, 1.0]
+            color: [1.0, 0.0, 0.0, 1.0],
         }
     }
-    fn decide_x(ltr:bool) -> f64 {
+    fn decide_x(ltr: bool) -> f64 {
         if ltr {
             0.0
         } else {
@@ -64,7 +64,7 @@ struct Apple {
     pub x: f64,
     pub y: f64,
     pub w: f64,
-    pub h: f64
+    pub h: f64,
 }
 
 impl Apple {
@@ -74,14 +74,15 @@ impl Apple {
             x: param_x,
             y: param_y,
             w: 40.0,
-            h: 40.0
+            h: 40.0,
         }
     }
     pub fn update(&mut self) {
         if self.active {
             self.y += 1.0;
 
-            if self.y > 650.0 { // window height_ish
+            if self.y > 650.0 {
+                // window height_ish
                 self.active = false;
             }
         }
@@ -94,7 +95,7 @@ impl Apple {
 struct Shots {
     pub total: i32,
     pub gone: i32,
-    pub left: i32
+    pub left: i32,
 }
 
 impl Shots {
@@ -102,7 +103,7 @@ impl Shots {
         Shots {
             total: 10,
             gone: 0,
-            left: 10
+            left: 10,
         }
     }
     pub fn fire(&mut self) {
@@ -120,7 +121,7 @@ struct Player {
     pub y: i32,
     factor: f64,
     pub shots: Shots,
-    pub apples: Vec<Apple>
+    pub apples: Vec<Apple>,
 }
 
 impl Player {
@@ -132,7 +133,7 @@ impl Player {
             y: 0,
             factor: 110.0,
             shots: Shots::new(),
-            apples: vec![]
+            apples: vec![],
         }
     }
     fn calc_coord(&mut self, pos: f64) -> f64 {
@@ -156,20 +157,19 @@ impl Player {
     }
     pub fn moving(&mut self, x: i32, y: i32) {
         self.x += x;
-        if self.x > self.columns -1 {
+        if self.x > self.columns - 1 {
             self.x = 0;
         } else if self.x < 0 {
-            self.x = self.columns -1;
+            self.x = self.columns - 1;
         }
         self.y += y;
-        if self.y > self.rows -1 {
+        if self.y > self.rows - 1 {
             self.y = 0;
         } else if self.y < 0 {
-            self.y = self.rows -1;
+            self.y = self.rows - 1;
         }
     }
 }
-
 
 struct Game {
     pub scene: usize,
@@ -178,7 +178,7 @@ struct Game {
     last_folk: f64,
     folk_interval: f64,
     global_time: f64,
-    pub score: i32
+    pub score: i32,
 }
 
 impl Game {
@@ -190,7 +190,7 @@ impl Game {
             last_folk: 1.0,
             folk_interval: 2.0,
             global_time: 0.0,
-            score: 0
+            score: 0,
         }
     }
     pub fn set_scene(&mut self, scene: usize) {
@@ -237,16 +237,15 @@ impl Game {
             if f.active {
                 for a in self.player.apples.iter_mut() {
                     if a.active {
-
-                        if a.x < f.x + f.w &&
-                            a.x + a.w > f.x &&
-                            a.y < f.y + f.h &&
-                            a.y + a.h > f.y {
-                                f.deactivate();
-                                a.deactivate();
-                                points = 20;
-                            }
-
+                        if a.x < (f.x + f.w)
+                            && (a.x + a.w) > f.x
+                            && a.y < (f.y + f.h)
+                            && (a.y + a.h) > f.y
+                        {
+                            f.deactivate();
+                            a.deactivate();
+                            points = 20;
+                        }
                     }
                 }
             }
@@ -258,45 +257,50 @@ impl Game {
 fn main() {
     let opengl = OpenGL::V3_2;
 
-    let mut window: PistonWindow = WindowSettings::new(
-        "Manzana Attack", [500, 700])
+    let mut window: PistonWindow = WindowSettings::new("Manzana Attack", [500, 700])
         .opengl(opengl)
         .exit_on_esc(true)
-        .build().unwrap();
+        .build()
+        .unwrap();
 
-    let assets = find_folder::Search::ParentsThenKids(3,3)
-        .for_folder("assets").unwrap();
+    let assets = find_folder::Search::ParentsThenKids(3, 3)
+        .for_folder("assets")
+        .unwrap();
 
     let ref font = assets.join("Amatic-Bold.ttf");
-    let mut glyphs = Glyphs::new(font, window.factory.clone()).unwrap();
+    let mut glyphs = Glyphs::new(font, window.factory.clone(), TextureSettings::new()).unwrap();
 
     let house_start = Texture::from_path(
         &mut window.factory,
         assets.join("house-start.jpg"),
         Flip::None,
-        &TextureSettings::new()
-    ).unwrap();
+        &TextureSettings::new(),
+    )
+    .unwrap();
 
     let house = Texture::from_path(
         &mut window.factory,
         assets.join("house.jpg"),
         Flip::None,
-        &TextureSettings::new()
-    ).unwrap();
+        &TextureSettings::new(),
+    )
+    .unwrap();
 
     let apple = Texture::from_path(
         &mut window.factory,
         &assets.join("apple.png"),
         Flip::None,
-        &TextureSettings::new()
-    ).unwrap();
+        &TextureSettings::new(),
+    )
+    .unwrap();
 
     let apple_gone = Texture::from_path(
         &mut window.factory,
         &(assets.join("apple-gone.png")),
         Flip::None,
-        &TextureSettings::new()
-    ).unwrap();
+        &TextureSettings::new(),
+    )
+    .unwrap();
 
     let black = [0.0, 0.0, 0.0, 1.0];
     let white = [1.0, 1.0, 1.0, 1.0];
@@ -304,169 +308,192 @@ fn main() {
     let mut game = Game::new(1);
 
     while let Some(e) = window.next() {
-
-        match e {
-            Input::Release(Button::Keyboard(key)) => {
-                match game.scene {
-                    1 => {
-                        if key == Key::M {
-                            game.set_scene(2);
-                        }
+        if let Some(Button::Keyboard(key)) = e.release_args() {
+            match game.scene {
+                1 => {
+                    if key == Key::M {
+                        game.set_scene(2);
                     }
-                    2 => {
-                        match key {
-                            Key::W => {
-                                game.player.moving(0, -1)
-                            }
-                            Key::S => {
-                                game.player.moving(0, 1);
-                            }
-                            Key::A => {
-                                game.player.moving(-1,0);
-                            }
-                            Key::D => {
-                                game.player.moving(1, 0);
-                            }
-                            Key::M => {
-                                game.player.throw();
-                            }
-                            _ => {}
-                        }
+                }
+                2 => match key {
+                    Key::W => game.player.moving(0, -1),
+                    Key::S => {
+                        game.player.moving(0, 1);
+                    }
+                    Key::A => {
+                        game.player.moving(-1, 0);
+                    }
+                    Key::D => {
+                        game.player.moving(1, 0);
+                    }
+                    Key::M => {
+                        game.player.throw();
                     }
                     _ => {}
-                }
+                },
+                _ => {}
             }
+        }
 
-            Input::Update(args) => {
-                if game.scene == 2 {
-                    game.update(args.dt);
-                    game.check_collision();
-                }
+        if let Some(args) = e.update_args() {
+            if game.scene == 2 {
+                game.update(args.dt);
+                game.check_collision();
             }
+        }
 
-            Input::Render(_) => {
-                match game.scene {
-                    1 => {
-                        window.draw_2d(&e, |c, g| {
-                            clear(white, g);
-                            image(&house_start, c.transform.scale(0.5, 0.5), g);
+        if let Some(_args) = e.render_args() {
+            match game.scene {
+                1 => {
+                    window.draw_2d(&e, |c, g| {
+                        clear(white, g);
+                        image(&house_start, c.transform.scale(0.5, 0.5), g);
 
-                            text::Text::new_color(black, 50)
-                                .draw(
-                                    &"Manzana Attack",
-                                    &mut glyphs,
-                                    &c.draw_state,
-                                    c.transform.trans(100.0, 100.0),
-                                    g);
+                        text::Text::new_color(black, 50)
+                            .draw(
+                                &"Manzana Attack",
+                                &mut glyphs,
+                                &c.draw_state,
+                                c.transform.trans(100.0, 100.0),
+                                g,
+                            )
+                            .unwrap();
 
-                            text::Text::new_color(black, 30)
-                                .draw(
-                                    &"<w><a><s><d> to move",
-                                    &mut glyphs,
-                                    &c.draw_state,
-                                    c.transform.trans(120.0, 300.0),
-                                    g);
-                            text::Text::new_color(black, 30)
-                                .draw(
-                                    &"<m> to throw",
-                                    &mut glyphs,
-                                    &c.draw_state,
-                                    c.transform.trans(120.0, 350.0),
-                                    g);
+                        text::Text::new_color(black, 30)
+                            .draw(
+                                &"<w><a><s><d> to move",
+                                &mut glyphs,
+                                &c.draw_state,
+                                c.transform.trans(120.0, 300.0),
+                                g,
+                            )
+                            .unwrap();
+                        text::Text::new_color(black, 30)
+                            .draw(
+                                &"<m> to throw",
+                                &mut glyphs,
+                                &c.draw_state,
+                                c.transform.trans(120.0, 350.0),
+                                g,
+                            )
+                            .unwrap();
 
-                            text::Text::new_color(black, 30)
-                                .draw(
-                                    &"Press <m> to start",
-                                    &mut glyphs,
-                                    &c.draw_state,
-                                    c.transform.trans(150.0, 500.0),
-                                    g);
-                        });
-                    }
-                    2 => {
-                        window.draw_2d(&e, |c, g| {
-                            clear(white, g);
-
-                            image(&house, c.transform.scale(0.5, 0.5), g);
-
-                            text::Text::new_color(black, 30)
-                                .draw(
-                                    &format!("Score: {}", game.score),
-                                    &mut glyphs,
-                                    &c.draw_state,
-                                    c.transform.trans(320.0, 40.0),
-                                    g);
-
-                            for i in 0..game.player.shots.total {
-                                if i as i32 >= game.player.shots.left {
-                                    image(&apple_gone, c.transform.scale(0.5, 0.5).trans((50.0 + (i * 50) as f64), 20.0), g);
-                                } else {
-                                    image(&apple, c.transform.scale(0.5, 0.5).trans((50.0 + (i * 50) as f64), 20.0), g);
-                                }
-                            }
-
-                            for f in game.folks.iter() {
-                                if f.active {
-                                    let folk_square = rectangle::square(0.0, 0.0, f.w);
-                                    rectangle(f.color, folk_square, c.transform.trans(
-                                        f.x, f.y), g);
-                                }
-                            }
-
-                            for a in game.player.apples.iter() {
-                                if a.active {
-                                    image(&apple, c.transform.trans(
-                                        a.x, a.y), g);
-                                }
-                            }
-
-                            for cv in 0..game.player.rows {
-                                for rv in 0..game.player.columns {
-                                    if rv == game.player.x
-                                        && cv == game.player.y {
-                                            let square = rectangle::square(0.0, 0.0, 50.0);
-                                            rectangle(black, square, c.transform.trans(
-                                                game.player.calc_coord(rv as f64),
-                                                game.player.calc_coord(cv as f64)), g);
-                                        }
-                                }
-                            }
-                        });
-                    }
-                    3 => {
-                        window.draw_2d(&e, |c, g| {
-                            clear(white, g);
-                            image(&house_start, c.transform.scale(0.5, 0.5), g);
-
-                            text::Text::new_color(black, 40)
-                                .draw(
-                                    &"You're out of apples",
-                                    &mut glyphs,
-                                    &c.draw_state,
-                                    c.transform.trans(100.0, 100.0),
-                                    g);
-
-                            text::Text::new_color(black, 40)
-                                .draw(
-                                    &format!("Your score is {}", game.score),
-                                    &mut glyphs,
-                                    &c.draw_state,
-                                    c.transform.trans(100.0, 200.0),
-                                    g);
-
-                            text::Text::new_color(black, 30)
-                                .draw(
-                                    &"Press <esc> to close",
-                                    &mut glyphs,
-                                    &c.draw_state,
-                                    c.transform.trans(150.0, 500.0),
-                                    g);
-                        });
-                    }
-                    _ => {}
+                        text::Text::new_color(black, 30)
+                            .draw(
+                                &"Press <m> to start",
+                                &mut glyphs,
+                                &c.draw_state,
+                                c.transform.trans(150.0, 500.0),
+                                g,
+                            )
+                            .unwrap();
+                    });
                 }
+                2 => {
+                    window.draw_2d(&e, |c, g| {
+                        clear(white, g);
+
+                        image(&house, c.transform.scale(0.5, 0.5), g);
+
+                        text::Text::new_color(black, 30)
+                            .draw(
+                                &format!("Score: {}", game.score),
+                                &mut glyphs,
+                                &c.draw_state,
+                                c.transform.trans(320.0, 40.0),
+                                g,
+                            )
+                            .unwrap();
+
+                        for i in 0..game.player.shots.total {
+                            if i as i32 >= game.player.shots.left {
+                                image(
+                                    &apple_gone,
+                                    c.transform
+                                        .scale(0.5, 0.5)
+                                        .trans(50.0 + (i * 50) as f64, 20.0),
+                                    g,
+                                );
+                            } else {
+                                image(
+                                    &apple,
+                                    c.transform
+                                        .scale(0.5, 0.5)
+                                        .trans(50.0 + (i * 50) as f64, 20.0),
+                                    g,
+                                );
+                            }
+                        }
+
+                        for f in game.folks.iter() {
+                            if f.active {
+                                let folk_square = rectangle::square(0.0, 0.0, f.w);
+                                rectangle(f.color, folk_square, c.transform.trans(f.x, f.y), g);
+                            }
+                        }
+
+                        for a in game.player.apples.iter() {
+                            if a.active {
+                                image(&apple, c.transform.trans(a.x, a.y), g);
+                            }
+                        }
+
+                        for cv in 0..game.player.rows {
+                            for rv in 0..game.player.columns {
+                                if rv == game.player.x && cv == game.player.y {
+                                    let square = rectangle::square(0.0, 0.0, 50.0);
+                                    rectangle(
+                                        black,
+                                        square,
+                                        c.transform.trans(
+                                            game.player.calc_coord(rv as f64),
+                                            game.player.calc_coord(cv as f64),
+                                        ),
+                                        g,
+                                    );
+                                }
+                            }
+                        }
+                    });
+                }
+                3 => {
+                    window.draw_2d(&e, |c, g| {
+                        clear(white, g);
+                        image(&house_start, c.transform.scale(0.5, 0.5), g);
+
+                        text::Text::new_color(black, 40)
+                            .draw(
+                                &"You're out of apples",
+                                &mut glyphs,
+                                &c.draw_state,
+                                c.transform.trans(100.0, 100.0),
+                                g,
+                            )
+                            .unwrap();
+
+                        text::Text::new_color(black, 40)
+                            .draw(
+                                &format!("Your score is {}", game.score),
+                                &mut glyphs,
+                                &c.draw_state,
+                                c.transform.trans(100.0, 200.0),
+                                g,
+                            )
+                            .unwrap();
+
+                        text::Text::new_color(black, 30)
+                            .draw(
+                                &"Press <esc> to close",
+                                &mut glyphs,
+                                &c.draw_state,
+                                c.transform.trans(150.0, 500.0),
+                                g,
+                            )
+                            .unwrap();
+                    });
+                }
+                _ => {}
             }
-            _ => {}
         }
     }
 }
